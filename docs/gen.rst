@@ -1,4 +1,4 @@
-``tornado.gen`` --- Simplify asynchronous code
+``tornado.gen`` --- 简化的异步代码
 ==============================================
 
 .. testsetup::

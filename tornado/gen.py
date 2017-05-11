@@ -1,9 +1,9 @@
-"""``tornado.gen`` is a generator-based interface to make it easier to
-work in an asynchronous environment.  Code using the ``gen`` module
-is technically asynchronous, but it is written as a single generator
-instead of a collection of separate functions.
+# coding: utf-8
+u"""``tornado.gen`` 是一个基于生成器的接口用来使异步更加简单。
+使用 ``gen`` 模块的代码在技术上是异步的，但是按照生成器语法来写，
+而不是一系列独立函数的集合。
 
-For example, the following asynchronous handler:
+以下面的异步处理为例：
 
 .. testcode::
 
@@ -21,7 +21,7 @@ For example, the following asynchronous handler:
 .. testoutput::
    :hide:
 
-could be written with ``gen`` as:
+能够使用 ``gen`` 来重写为：
 
 .. testcode::
 
@@ -36,12 +36,11 @@ could be written with ``gen`` as:
 .. testoutput::
    :hide:
 
-Most asynchronous functions in Tornado return a `.Future`;
-yielding this object returns its `~.Future.result`.
+Tornado 中大部分异步函数返回 `.Future`；
+yield 这个对象返回它的 `.Future.result`。
 
-You can also yield a list or dict of ``Futures``, which will be
-started at the same time and run in parallel; a list or dict of results will
-be returned when they are all finished:
+你也能 yield 一个 ``Futures`` 的 list 或 dict，它们会同时启动，并行运行；当它们全部完成时
+会返回一个结果的 list 或 dict：
 
 .. testcode::
 
@@ -58,20 +57,18 @@ be returned when they are all finished:
 .. testoutput::
    :hide:
 
-If the `~functools.singledispatch` library is available (standard in
-Python 3.4, available via the `singledispatch
-<https://pypi.python.org/pypi/singledispatch>`_ package on older
-versions), additional types of objects may be yielded. Tornado includes
-support for ``asyncio.Future`` and Twisted's ``Deferred`` class when
-``tornado.platform.asyncio`` and ``tornado.platform.twisted`` are imported.
-See the `convert_yielded` function to extend this mechanism.
+如果 `~functools.singledispatch` 库是可用的（Python 3.4 之前的版本使用 `singledispatch
+<https://pypi.python.org/pypi/singledispatch>` 包），能够 yield 额外的对象类型。
+当 ``tornado.platform.asyncio`` 和 ``tornado.platform.twisted`` 被导入时， Tornado
+能够支持 ``asyncio.Future`` 和 Twisted 的 ``Deferred``。
+请看 `convert_yielded` 函数来扩展这个机制。
 
 .. versionchanged:: 3.2
-   Dict support added.
+   添加 Dict 支持
 
 .. versionchanged:: 4.1
-   Support added for yielding ``asyncio`` Futures and Twisted Deferreds
-   via ``singledispatch``.
+   通过 ``singledispatch`` 添加对于 yield ``asyncio`` Futures 和 Twisted Deferreds
+   的支持
 
 """
 from __future__ import absolute_import, division, print_function, with_statement
@@ -205,38 +202,28 @@ def engine(func):
 
 
 def coroutine(func, replace_callback=True):
-    """Decorator for asynchronous generators.
+    u"""生成器式的异步装饰器。
 
-    Any generator that yields objects from this module must be wrapped
-    in either this decorator or `engine`.
+    任何从这个模块 yield 对象的生成器必须被这个装饰器或者 `engine` 所装饰。
 
-    Coroutines may "return" by raising the special exception
-    `Return(value) <Return>`.  In Python 3.3+, it is also possible for
-    the function to simply use the ``return value`` statement (prior to
-    Python 3.3 generators were not allowed to also return values).
-    In all versions of Python a coroutine that simply wishes to exit
-    early may use the ``return`` statement without a value.
+    依靠一个特殊的异常 `Return(value) <Return>`，协程可以实现 "return"。
+    在 Python 3.3+，对于函数可以简单的使用 ``return value`` 语句
+    （Python 3.3 之前生成器不允许有返回值）。在所有版本的 Python 中，如果
+    一个协程想要 exit 可以直接使用无返回值的 ``return`` 语句。
 
-    Functions with this decorator return a `.Future`.  Additionally,
-    they may be called with a ``callback`` keyword argument, which
-    will be invoked with the future's result when it resolves.  If the
-    coroutine fails, the callback will not be run and an exception
-    will be raised into the surrounding `.StackContext`.  The
-    ``callback`` argument is not visible inside the decorated
-    function; it is handled by the decorator itself.
+    被这个装饰器所装饰的函数返回 `.Future`。另外，他们调用时会被传入一个 ``callback``
+    关键字参数，当 future 的结果明确时，``callback`` 则会被调用。
+    如果协程失败，回调函数不会运行，并且一个异常会被抛出至周围的 `.StackContext`。
+    ``callback`` 参数在被装饰的函数内部不可见；它是由装饰器所处理。
 
-    From the caller's perspective, ``@gen.coroutine`` is similar to
-    the combination of ``@return_future`` and ``@gen.engine``.
+    从调用者的视角， ``@gen.coroutine`` 与 ``@return`` 和 ``@gen.engine`` 的组合相同
 
     .. warning::
 
-       When exceptions occur inside a coroutine, the exception
-       information will be stored in the `.Future` object. You must
-       examine the result of the `.Future` object, or the exception
-       may go unnoticed by your code. This means yielding the function
-       if called from another coroutine, using something like
-       `.IOLoop.run_sync` for top-level calls, or passing the `.Future`
-       to `.IOLoop.add_future`.
+       当在协程内部发生异常，异常信息会被存储在 `.Future` 对象中。你必须检查 `.Future`
+       对象的结果，否则异常可能会被忽视。这意味着如果从另一个协程调用函数，对于顶层调用
+       使用类似于 `.IOLoop.run_sync` 的，或者向 `.IOLoop.add_future` 传入
+       `.Future`
 
     """
     return _make_coroutine_wrapper(func, replace_callback=True)
